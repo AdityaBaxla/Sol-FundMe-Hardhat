@@ -1,4 +1,4 @@
-//SPDX-License_Identifier: MIT
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.8;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
@@ -8,13 +8,13 @@ error NotOwner();
 
 contract FundMe {
 
-    using PriceConverter for uin256;
+    using PriceConverter for uint256;
 
     mapping(address => uint256) public addressToAmountFunded;
     address[] public funders;
 
     address public /* immutable */ i_owner;
-    uint 256 public constant MINIMUM_USD = 50 * 10 ** 18;
+    uint256 public constant MINIMUM_USD = 50 * 10 ** 18;
 
 
     constructor() {
@@ -22,7 +22,7 @@ contract FundMe {
     }
 
     function fund() public payable {
-        require(msg.value.getConversionRate() >= MINIMUM_USD, "You need to spend more ETH")
+        require(msg.value.getConversionRate() >= MINIMUM_USD, "You need to spend more ETH");
 
         addressToAmountFunded[msg.sender] += msg.value;
         funders.push(msg.sender);
@@ -54,13 +54,14 @@ contract FundMe {
         // call
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
-
-        fallback() external payable {
-            fund();
-        }
-
-        receive() external payable {
-            fund();
-        }
     }
+
+     fallback() external payable {
+        fund();
+    }
+
+    receive() external payable {
+        fund();
+    }    
 }
+
